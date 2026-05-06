@@ -100,7 +100,7 @@ namespace XstReader
                 if (exportFileName == null)
                 {
                     var fileName = String.Format("{0:yyyy-MM-dd HHmm} {1}", Date, Subject).Truncate(150);
-                    exportFileName = fileName.ReplaceInvalidFileNameChars(" ");
+                    exportFileName = fileName.SanitizeFileSystemName("message");
                 }
 
                 return exportFileName;
@@ -157,6 +157,7 @@ namespace XstReader
 
                 if (body != null)
                 {
+                    body = SanitizeHtmlForExportPreview(body);
                     body = EmbedHtmlPrintHeader(body);
                     using (var stream = new FileStream(fullFileName, FileMode.Create))
                     {
@@ -267,6 +268,20 @@ namespace XstReader
             header.Append("</tbody></table><p/><p/>");
 
             return body.Insert(insertAt, header.ToString());
+        }
+
+
+        public string SanitizeHtmlForExportPreview(string html)
+        {
+            if (string.IsNullOrWhiteSpace(html))
+                return html;
+
+            string sanitized = Regex.Replace(html, @"<\s*(script|iframe|object|embed|form|meta|base|link)\b[^>]*>.*?<\s*/\s*\1\s*>", "", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            sanitized = Regex.Replace(sanitized, @"<\s*(script|iframe|object|embed|meta|base|link)\b[^>]*?/?>", "", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            sanitized = Regex.Replace(sanitized, @"\son\w+\s*=\s*(["']).*?\1", "", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            sanitized = Regex.Replace(sanitized, @"\ssrcdoc\s*=\s*(["']).*?\1", "", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+            sanitized = Regex.Replace(sanitized, @"(href|src)\s*=\s*(["'])\s*(file:|javascript:)", "$1=$2blocked:", RegexOptions.IgnoreCase);
+            return sanitized;
         }
 
         private bool LookForInsertionPoint(string body, string tag, out int insertAt)

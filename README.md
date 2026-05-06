@@ -65,6 +65,18 @@ To run the portable version, open a command line and run:
 
 dotnet XstPortableExport.dll `<options as above>`
 
+
+## Security and Windows VM workflow
+
+When working with unknown mailbox files, use an isolated Windows VM snapshot and treat every attachment and HTML message as untrusted content.
+
+- Do **not** open attachments directly from XstReader unless you explicitly confirm the prompt.
+- Prefer **Save As** to a disposable VM folder and scan files before opening.
+- Risky attachment types (for example `.exe`, `.dll`, `.bat`, `.cmd`, `.ps1`, `.js`, `.vbs`, `.msi`, `.lnk`) now trigger a stronger warning before launch.
+- Exported filenames/folder names are sanitized and path traversal segments are stripped.
+- HTML body export/preview applies defensive sanitization to remove active content elements and dangerous URI schemes where feasible.
+- Do not run untrusted sample PST/OST files on a host OS.
+
 ## Installation
 
 To install a binary:

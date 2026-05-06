@@ -28,6 +28,9 @@ namespace XstReader
         private List<string> tempFileNames = new List<string>();
         private int searchIndex = -1;
 
+        private static readonly HashSet<string> RiskyAttachmentExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        { ".exe", ".dll", ".bat", ".cmd", ".com", ".ps1", ".vbs", ".js", ".jse", ".scr", ".hta", ".msi", ".reg", ".lnk" };
+
         public MainWindow()
         {
             InitializeComponent();
@@ -854,6 +857,17 @@ namespace XstReader
             e.CanExecute = a != null && a.IsFile;
         }
 
+        private bool ConfirmOpenAttachment(string fileFullName)
+        {
+            var ext = Path.GetExtension(fileFullName);
+            var risky = RiskyAttachmentExtensions.Contains(ext);
+            var msg = risky
+                ? "This attachment type can execute code and is risky to open, even in a VM. Open anyway?"
+                : "Open attachment from a temporary file?";
+
+            return MessageBox.Show(msg, "Open Attachment", MessageBoxButton.YesNo, risky ? MessageBoxImage.Warning : MessageBoxImage.Question) == MessageBoxResult.Yes;
+        }
+
         private void openAttachment_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var a = listAttachments.SelectedItem as Attachment;
@@ -864,7 +878,11 @@ namespace XstReader
                 if (fileFullname == null)
                     return;
 
-                using (Process.Start(fileFullname)) { }
+                if (!ConfirmOpenAttachment(fileFullname))
+                    return;
+
+                var psi = new ProcessStartInfo(fileFullname) { UseShellExecute = true };
+                using (Process.Start(psi)) { }
             }
             else if (a.IsEmail)
                 OpenEmailAttachment(a);
@@ -877,6 +895,9 @@ namespace XstReader
             var a = listAttachments.SelectedItem as Attachment;
             string fileFullname = SaveAttachmentToTemporaryFile(a);
             if (fileFullname == null)
+                return;
+
+            if (!ConfirmOpenAttachment(fileFullname))
                 return;
 
             if (Environment.OSVersion.Version.Major > 5)
