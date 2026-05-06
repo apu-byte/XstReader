@@ -23,6 +23,8 @@
         </Style>
         
         <Style x:Key="PrimaryButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="#FF93C5FD"/><Setter Property="BorderThickness" Value="2"/></Trigger></Style.Triggers>
             <Setter Property="Background" Value="#FF2563EB"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="#FF1D4ED8"/>
@@ -31,6 +33,8 @@
             <Setter Property="Height" Value="24"/>
         </Style>
         <Style x:Key="SecondaryButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Style.Triggers><Trigger Property="IsKeyboardFocused" Value="True"><Setter Property="BorderBrush" Value="#FF2563EB"/><Setter Property="BorderThickness" Value="2"/></Trigger></Style.Triggers>
             <Setter Property="Background" Value="#FFF3F4F6"/>
             <Setter Property="Foreground" Value="#FF111827"/>
             <Setter Property="BorderBrush" Value="#FFD1D5DB"/>
@@ -44,6 +48,13 @@
             <Setter Property="Foreground" Value="#FF374151"/>
             <Setter Property="Margin" Value="8,6,8,4"/>
         </Style>
+                <Style x:Key="HintTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="#FF6B7280"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
         <Style x:Key="ListViewSelect" TargetType="{x:Type ListViewItem}">
             <Setter x:Uid="Setter_10" Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
             <Setter x:Uid="Setter_11" Property="FontWeight" Value="Normal" />
@@ -56,7 +67,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid KeyboardNavigation.TabNavigation="Cycle">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="3"/>
@@ -95,10 +106,10 @@
                     <MenuItem Command="Save" Header="Export all Properties…" InputGestureText="Ctrl+P"/>
                 </ContextMenu>
             </TreeView.ContextMenu>
-        </TreeView></DockPanel></Border>
+        </TreeView><TextBlock Style="{StaticResource HintTextStyle}" Text="Open a PST/OST file to load folders."><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource HintTextStyle}"><Style.Triggers><DataTrigger Binding="{Binding HasFolders}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></DockPanel></Border>
         <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
             <StackPanel Grid.Row="1"  Orientation="Horizontal">
-                <Button Content="Open..." Width="90" Style="{StaticResource PrimaryButtonStyle}" Name="btnOpen" Click="btnOpen_Click" />
+                <Button Content="_Open..." Width="90" Style="{StaticResource PrimaryButtonStyle}" Name="btnOpen" TabIndex="0" Click="btnOpen_Click" />
                 <TextBlock Name="txtStatus" Margin="10,7,0,0"/>
             </StackPanel>
         </Grid>
@@ -165,8 +176,8 @@
                     <MenuItem Command="SaveAs" Header="Export Properties…" InputGestureText="Ctrl+P"/>
                 </ContextMenu>
             </ListView.ContextMenu>
-        </ListView></DockPanel></Border>
-        <stb:SearchTextBox Grid.Column="2" Grid.Row="1" Width="280" Margin="8,4,0,4" x:Name="searchTextBox" SectionsStyle="CheckBoxStyle" OnSearch="searchTextBox_OnSearch"
+        </ListView><TextBlock Style="{StaticResource HintTextStyle}" Text="Select a folder to load messages."><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource HintTextStyle}"><Style.Triggers><DataTrigger Binding="{Binding HasSelectedFolder}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock><TextBlock Style="{StaticResource HintTextStyle}" Text="No messages found in this folder."><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource HintTextStyle}"><Style.Triggers><MultiDataTrigger><MultiDataTrigger.Conditions><Condition Binding="{Binding HasSelectedFolder}" Value="True"/><Condition Binding="{Binding HasMessages}" Value="False"/></MultiDataTrigger.Conditions><Setter Property="Visibility" Value="Visible"/></MultiDataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></DockPanel></Border>
+        <stb:SearchTextBox Grid.Column="2" Grid.Row="1" Width="280" Margin="8,4,0,4" x:Name="searchTextBox" TabIndex="1" SectionsStyle="CheckBoxStyle" OnSearch="searchTextBox_OnSearch"
                                Visibility="{Binding Path=IsNotBusy, FallbackValue=Collapsed, Converter={StaticResource VisibleIfTrue}}"/>
         <GridSplitter Grid.Row="0" Grid.Column="3" Width="3" HorizontalAlignment="Stretch" Background="#FFD5DDE6" />
         <Grid Grid.Row="0" Grid.Column="4">
@@ -329,17 +340,17 @@
             </ListView>
         </Grid>
         <StackPanel Grid.Column="4" Grid.Row="1" Orientation="Horizontal" Margin="6,0,0,0">
-            <Button Content="Save All Attachments..." Height="20" Width="150" Margin="10,0,0,0" Name="btnSaveAllAttachments" Style="{StaticResource SecondaryButtonStyle}" Click="btnSaveAllAttachments_Click" 
+            <Button Content="Save _All Attachments..." Height="20" Width="150" Margin="10,0,0,0" Name="btnSaveAllAttachments" ToolTip="Save all file attachments to a folder" Style="{StaticResource SecondaryButtonStyle}" Click="btnSaveAllAttachments_Click" 
                         Visibility="{Binding IsFileAttachmentPresent, Converter={StaticResource VisibleIfTrue}}" IsEnabled="{Binding Path=IsFileAttachmentPresent}"/>
-            <Button Content="Close Email" Height="20" Width="75" Margin="10,0,0,0" Name="btnCloseEmail" Style="{StaticResource SecondaryButtonStyle}" Click="btnCloseEmail_Click"
+            <Button Content="_Close Email" Height="20" Width="75" Margin="10,0,0,0" Name="btnCloseEmail" ToolTip="Return to previous message when viewing embedded email" Style="{StaticResource SecondaryButtonStyle}" Click="btnCloseEmail_Click"
                         Visibility="{Binding CanPopMessage, Converter={StaticResource VisibleIfTrue}}" />
         </StackPanel>
         <StackPanel Grid.Column="4" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-            <RadioButton x:Name="rbContent" Content="Content" Margin="0,7,10,0" IsChecked="True" Click="rbContent_Click"
+            <RadioButton x:Name="rbContent" ToolTip="Show email body" Content="Content" Margin="0,7,10,0" IsChecked="True" Click="rbContent_Click"
                               Visibility="{Binding MessagePresent, Converter={StaticResource VisibleIfTrue}}"/>
-            <RadioButton x:Name="rbProperties" Content="Properties" Margin="0,7,10,0" Click="rbProperties_Click"
+            <RadioButton x:Name="rbProperties" ToolTip="Show properties/recipients" Content="Properties" Margin="0,7,10,0" Click="rbProperties_Click"
                               Visibility="{Binding MessagePresent, Converter={StaticResource VisibleIfTrue}}"/>
-            <Button Content="Info" Width="48" Margin="0,0,8,0" Style="{StaticResource SecondaryButtonStyle}" Click="btnInfo_Click" VerticalAlignment="Center" FontWeight="Bold" HorizontalAlignment="Right"/>
+            <Button Content="_Info" Width="48" Margin="0,0,8,0" Style="{StaticResource SecondaryButtonStyle}" Click="btnInfo_Click" VerticalAlignment="Center" FontWeight="Bold" HorizontalAlignment="Right"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -146,7 +146,7 @@ namespace XstReader
                         {
                             xstFile.ReadMessages(fv.Folder);
                             // We may be called on a background thread, so we need to dispatch this to the UI thread
-                            Application.Current.Dispatcher.Invoke(new Action(() => fv.UpdateMessageViews()));
+                            Application.Current.Dispatcher.Invoke(new Action(() => { fv.UpdateMessageViews(); view.NotifyMessagesChanged(); }));
                         }
                         catch (System.Exception ex)
                         {
