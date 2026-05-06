@@ -6,3 +6,14 @@ Two things are required to build the project: the source code and the tool to bu
 Once installed, double click XstReader.sln in the root folder of the source code to open the project in Visual Studio.
 
 At this point, you should be able to build the solution (Build/Build Solution in the Visual Studio menus), and run it from within Visual Studio (Debug/Start Debugging).
+
+
+## Safe build/test workflow (Windows VM)
+
+1. Create or revert to a clean Windows VM snapshot.
+2. Install Visual Studio 2022 Community with .NET desktop development.
+3. Install .NET 8 SDK for `XstPortableExport`.
+4. Clone the repository and open `XstReader.sln`.
+5. Build using `Build > Build Solution`.
+6. For CLI export: `dotnet build XstPortableExport/XstPortableExport.csproj -c Release`.
+7. Validate with known-safe test data only. Do **not** execute untrusted PST/OST samples.

@@ -21,10 +21,13 @@ namespace XstReader
         private bool showContent = true;
 
         public ObservableCollection<FolderView> RootFolderViews { get; private set; } = new ObservableCollection<FolderView>();
+        public bool HasFolders { get { return RootFolderViews.Count > 0; } }
+        public bool HasSelectedFolder { get { return SelectedFolder != null; } }
+        public bool HasMessages { get { return SelectedFolder != null && SelectedFolder.MessageViews.Count > 0; } }
         public FolderView SelectedFolder
         {
             get { return selectedFolder; }
-            set { selectedFolder = value; OnPropertyChanged(nameof(SelectedFolder), nameof(CanExportFolder)); }
+            set { selectedFolder = value; OnPropertyChanged(nameof(SelectedFolder), nameof(CanExportFolder), nameof(HasSelectedFolder), nameof(HasMessages)); }
         }
         public bool DisplayPrintHeaders { get; set; } = false;
         public bool DisplayEmailType { get; set; } = false;
@@ -83,10 +86,12 @@ namespace XstReader
         public void UpdateFolderViews(Folder rootFolder)
         {
             RootFolderViews.Clear();
+            OnPropertyChanged(nameof(HasFolders));
             foreach (var f in rootFolder.Folders)
             {
                 RootFolderViews.Add(new FolderView(f));
             }
+            OnPropertyChanged(nameof(HasFolders));
         }
 
         public void SelectedRecipientChanged(Recipient recipient)
@@ -109,6 +114,11 @@ namespace XstReader
                 CurrentProperties.PopulateWith(firstAttachment.Properties);
                 OnPropertyChanged(nameof(CurrentProperties));
             }
+        }
+
+        public void NotifyMessagesChanged()
+        {
+            OnPropertyChanged(nameof(HasMessages));
         }
 
         public void SetMessage(MessageView mv)
@@ -135,6 +145,7 @@ namespace XstReader
             SelectedFolder = null;
             CurrentMessage = null;
             RootFolderViews.Clear();
+            OnPropertyChanged(nameof(HasFolders), nameof(HasSelectedFolder), nameof(HasMessages));
             stackMessage.Clear();
         }
 
@@ -156,7 +167,8 @@ namespace XstReader
                 nameof(IsFileAttachmentPresent),
                 nameof(IsFileAttachmentSelected),
                 nameof(IsEmailAttachmentPresent),
-                nameof(IsEmailAttachmentSelected)
+                nameof(IsEmailAttachmentSelected),
+                nameof(HasMessages)
                 );
         }
 
