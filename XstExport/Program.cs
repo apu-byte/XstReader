@@ -301,9 +301,9 @@ namespace XstExport
         private static string ValidFolderPath(Folder f)
         {
             if (string.IsNullOrEmpty(f.ParentFolder?.Name))
-                return RemoveInvalidChars(f.Name);
+                return f.Name.SafeFolderSegment("folder");
             else
-                return $"{ValidFolderPath(f.ParentFolder)}\\{RemoveInvalidChars(f.Name)}";
+                return $"{ValidFolderPath(f.ParentFolder)}\\{f.Name.SafeFolderSegment("folder")}";
         }
 
         private static string RemoveInvalidChars(string filename)
@@ -361,7 +361,7 @@ namespace XstExport
 
         private static void ExtractPropertiesInFolder(XstFile xstFile, XstReader.Folder folder, string exportDirectory)
         {
-            var fileName = Path.Combine(exportDirectory, RemoveInvalidChars(folder.Name)) + ".csv";
+            var fileName = Path.Combine(exportDirectory, folder.Name.SafeFileName("folder")) + ".csv";
             Console.WriteLine("Exporting " + fileName);
             xstFile.ReadMessages(folder);
             xstFile.ExportMessageProperties(folder.Messages, fileName);
@@ -381,7 +381,8 @@ namespace XstExport
                     {
                         if (att.IsFile)
                         {
-                            var attachmentExpectedName = Path.Combine(exportDirectory, att.FileName);
+                            var safeName = att.FileName.SafeFileName("attachment.bin");
+                            var attachmentExpectedName = Path.Combine(exportDirectory, safeName);
                             var fi = new FileInfo(attachmentExpectedName);
                             var actionName = string.Empty;
 
