@@ -229,7 +229,7 @@ namespace XstReader
             if (m.HasVisibleFileAttachment)
             {
                 var targetFolder = Path.Combine(Path.GetDirectoryName(fullFileName),
-                    Path.GetFileNameWithoutExtension(fullFileName) + " Attachments");
+                    Path.GetFileNameWithoutExtension(fullFileName).SanitizeFileSystemName("message") + " Attachments");
                 if (!Directory.Exists(targetFolder))
                 {
                     Directory.CreateDirectory(targetFolder);
@@ -251,13 +251,14 @@ namespace XstReader
         const int MaxPath = 260;
         public void SaveAttachmentToFolder(string folderpath, DateTime? creationTime, Attachment a)
         {
-            var fullFileName = Path.Combine(folderpath, a.FileName);
+            var safeName = a.FileName.SafeFileName("attachment.bin");
+            var fullFileName = Path.Combine(folderpath, safeName);
 
             // If the result is too long, truncate the attachment name as required
             if (fullFileName.Length >= MaxPath)
             {
-                var ext = Path.GetExtension(a.FileName);
-                var att = Path.GetFileNameWithoutExtension(a.FileName)
+                var ext = Path.GetExtension(safeName);
+                var att = Path.GetFileNameWithoutExtension(safeName)
                     .Truncate(MaxPath - folderpath.Length - ext.Length - 5) + ext;
                 fullFileName = Path.Combine(folderpath, att);
             }

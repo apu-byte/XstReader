@@ -65,6 +65,18 @@ To run the portable version, open a command line and run:
 
 dotnet XstPortableExport.dll `<options as above>`
 
+
+## Security and Windows VM workflow
+
+When working with unknown mailbox files, use an isolated Windows VM snapshot and treat every attachment and HTML message as untrusted content.
+
+- Do **not** open attachments directly from XstReader unless you explicitly confirm the prompt.
+- Prefer **Save As** to a disposable VM folder and scan files before opening.
+- Risky attachment types (for example `.exe`, `.dll`, `.bat`, `.cmd`, `.ps1`, `.js`, `.vbs`, `.msi`, `.lnk`) now trigger a stronger warning before launch.
+- Exported filenames/folder names are sanitized and path traversal segments are stripped.
+- HTML body export/preview applies defensive sanitization to remove active content elements and dangerous URI schemes where feasible.
+- Do not run untrusted sample PST/OST files on a host OS.
+
 ## Installation
 
 To install a binary:
@@ -74,7 +86,7 @@ To install a binary:
 
 ## Notes for developers
 * The provided Visual Studio solution includes a XstReader.Base project, which contains all the basic common functionality for reading Outlook files used by XstReader and XstExport. The project builds a DLL, which you can use to add the same capability to your own projects. XstReader and XstExport do not themselves use the DLL, instead, they simply include the code from the XstReader.Base directory, in order to create executables with minimum dependencies.
-* The XstPortableExport project builds a portable version of XstExport based on .Net Core 2.1. However, in order to remain portable, two areas of functionality have to be #ifdef'd out in order not to create a framework dependency and so tie the program to Windows. These are support for RTF body formats, and support for MIME decryption.
+* The XstPortableExport project builds a portable version of XstExport based on .NET 8. However, in order to remain portable, two areas of functionality have to be #ifdef'd out in order not to create a framework dependency and so tie the program to Windows. These are support for RTF body formats, and support for MIME decryption.
 ## Release History
 
 * 1.14
