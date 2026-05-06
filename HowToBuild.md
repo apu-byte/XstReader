@@ -12,7 +12,7 @@ At this point, you should be able to build the solution (Build/Build Solution in
 
 1. Create or revert to a clean Windows VM snapshot.
 2. Install Visual Studio 2022 Community with .NET desktop development.
-3. Install .NET 6 SDK for `XstPortableExport`.
+3. Install .NET 8 SDK for `XstPortableExport`.
 4. Clone the repository and open `XstReader.sln`.
 5. Build using `Build > Build Solution`.
 6. For CLI export: `dotnet build XstPortableExport/XstPortableExport.csproj -c Release`.
